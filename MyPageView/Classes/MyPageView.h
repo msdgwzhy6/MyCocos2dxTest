@@ -40,6 +40,10 @@ public:
 
 	void addPage(MyPage*);    //增加一个页面
 	int  getCurPage(){return m_currPage;}
+
+	void setCurPage(size_t page);
+
+	const CCSize &GetPageSize(){return m_PageSize;} 
     /**
      *  @js ctor
      */
@@ -60,7 +64,7 @@ public:
      * @param container parent object
      * @return autoreleased scroll view object
      */
-    static MyPageView* create(int directiontype = MyPage_Horizontal);
+    static MyPageView* create(CCSize pagesize, int directiontype = MyPage_Horizontal);
 
 	bool initWithViewSize(CCSize size, CCNode *container/* = NULL*/);
 
@@ -327,8 +331,9 @@ public:
     void unregisterScriptHandler(int nScriptEventType);
     int  getScriptHandler(int nScriptEventType);
 private:
-    std::map<int,int> m_mapScriptHandler;
-	std::vector<MyPage*> m_Pages;   //所有页面
+    std::map<int,int>    m_mapScriptHandler;
+	std::vector<MyPage*> m_Pages;          //所有页面
+	CCSize               m_PageSize;       //每页的大小
 };
 
 #endif

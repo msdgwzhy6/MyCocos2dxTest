@@ -45,6 +45,7 @@ void MyPage::addChild(cocos2d::CCNode * child)
 void MyPage::modifyChildPosition(cocos2d::CCNode *child)
 {
 	CCSize  viewsize = m_PageView->getViewSize();
+	CCSize  pagesize = m_PageView->GetPageSize();
 	CCPoint pos = child->getPosition();
 	if(m_PageView->getDirection() == kCCScrollViewDirectionHorizontal){
 		pos.x += m_posInPageView.x+(m_pagenum-1)*(viewsize.width/2);
@@ -52,7 +53,7 @@ void MyPage::modifyChildPosition(cocos2d::CCNode *child)
 	}
 	else{
 		pos.x += m_posInPageView.x;
-		pos.y += m_posInPageView.y+(m_pagenum-1)*(viewsize.height/2);	
+		pos.y += m_posInPageView.y+(m_pagenum-1)*(viewsize.height/2)+(viewsize.height-pagesize.height)/2;	
 	}
 	child->setPosition(pos);		
 }
@@ -62,21 +63,24 @@ void MyPageView::addPage(MyPage *page){
 	int pagenum = m_Pages.size() + 1; 
 	page->m_pagenum = pagenum;
 	m_Pages.push_back(page);
-	CCSize viewsize = getViewSize();
 	page->m_PageView = this;
 	addChild(page);
 	CCPoint viewpos = getPosition();	
 	page->m_posInPageView = CCPointZero;
+	page->setContentSize(m_PageSize);
+	CCSize viewsize = getViewSize();
 	if(getDirection() == kCCScrollViewDirectionHorizontal){
 		setContentSize(CCSizeMake(viewsize.width*pagenum,viewsize.height));//设置scrollview区域的大小
-		page->m_posInPageView.x += ((pagenum-1)*(viewsize.width/2));
+		page->m_posInPageView.x += (((pagenum-1)*(viewsize.width/2)) + (viewsize.width - m_PageSize.width)/2);
+		page->m_posInPageView.y += (viewsize.height - m_PageSize.height)/2;
 	}
 	else{
 		setContentSize(CCSizeMake(viewsize.width,viewsize.height*pagenum));//设置scrollview区域的大小
-		page->m_posInPageView.y += ((pagenum-1)*(viewsize.height/2));
+		page->m_posInPageView.x += (viewsize.width - m_PageSize.width)/2;
+		page->m_posInPageView.y += (((pagenum-1)*(viewsize.height/2)) + (viewsize.height - m_PageSize.height)/2);
 	}
 	page->setPosition(CCPointZero);
-	for(int i = 0;i < page->m_Children.size(); ++i){
+	for(size_t i = 0;i < page->m_Children.size(); ++i){
 		page->modifyChildPosition(page->m_Children[i]);
 	}
 }
@@ -90,6 +94,17 @@ void MyPageView::addPage(MyPage *page){
 #define TURN_PAGE_SPEED		0.20f				//designPixl/ms
 #define INVALID_PAGE		0xfff
 #define TURN_PAGE_MIN_OFFSET_RATIO		0.4f
+
+void MyPageView::setCurPage(size_t page){
+	if(page > m_Pages.size() || page <= 0) return;
+	m_currPage = page;
+	CCPoint offset = getContentOffset();
+	if(m_eDirection == kCCScrollViewDirectionHorizontal)
+		setContentOffset(ccp(-(offset.x+(m_currPage-1)*getViewSize().width), offset.y));
+	else
+		setContentOffset(ccp(offset.x, -(offset.y+(m_currPage-1)*getViewSize().height)));
+
+}
 
 static float convertDistanceFromPointToInch(float pointDis)
 {
@@ -128,11 +143,12 @@ MyPageView::~MyPageView()
 }
 
 
-MyPageView* MyPageView::create(int directiontype)
+MyPageView* MyPageView::create(CCSize pagesize,int directiontype)
 {
     MyPageView* pRet = new MyPageView();
     if (pRet && pRet->init())
     {
+		pRet->m_PageSize = pagesize;
 		if(directiontype == MyPage_Horizontal)
 			pRet->setDirection(kCCScrollViewDirectionHorizontal);
 		else
@@ -349,6 +365,8 @@ void MyPageView::setZoomScaleInDuration(float s, float dt)
 
 void MyPageView::setViewSize(CCSize size)
 {
+	if(size.height < m_PageSize.height) size.height = m_PageSize.height;
+	if(size.width <  m_PageSize.width)  size.width = m_PageSize.width;
     m_tViewSize = size;
     CCLayer::setContentSize(size);
 }
@@ -888,10 +906,10 @@ bool MyPageView::__pageTouchEnd()
 	if(( m_eDirection != kCCScrollViewDirectionHorizontal && m_eDirection != kCCScrollViewDirectionVertical )) return false ;
 
 	//constant
-	const float PAGE_DISTENCE = m_eDirection == kCCScrollViewDirectionHorizontal ? getViewSize().width : getViewSize().height ;
+	const float PAGE_DISTENCE = m_eDirection == kCCScrollViewDirectionHorizontal ? m_PageSize.width : m_PageSize.height ;
 	if( PAGE_DISTENCE <= 0 ) return false;
 
-	const float MAX_PAGE = ( m_eDirection == kCCScrollViewDirectionHorizontal ? getContentSize().width : getContentSize().height ) / PAGE_DISTENCE;
+	const float MAX_PAGE = m_Pages.size();//( m_eDirection == kCCScrollViewDirectionHorizontal ? getContentSize().width : getContentSize().height ) / PAGE_DISTENCE;
 	const float MIN_PAGE = 1;
 
 	float currOffset = m_eDirection == kCCScrollViewDirectionHorizontal ? getContentOffset().x : getContentOffset().y;

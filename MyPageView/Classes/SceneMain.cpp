@@ -1,5 +1,5 @@
 #include "SceneMain.h"
-#include "SceneMgr.h"
+//#include "SceneMgr.h"
 #include "cocos2d.h"
 #include "MyPageView.h"
 
@@ -51,8 +51,10 @@ bool SceneMain::init()
 		this->addChild(pSprite);
 	}
 
+	CCSize pagesize(150,100);
+
 	CCTexture2D *texture = CCTextureCache::sharedTextureCache()->addImage("Main.png");
-	MyPageView *pageview = MyPageView::create();
+	MyPageView *pageview = MyPageView::create(pagesize);
 	pageview->setContentOffset(CCPointZero);
 	pageview->setViewSize(CCSize(300,200));
 	ShowPage *page1 = ShowPage::create();
@@ -62,18 +64,18 @@ bool SceneMain::init()
 
 	CCSize pageviewsize = CCSize(300,200);
 
-	CCSprite* pSprite1 = CCSprite::createWithTexture(texture,CCRect(0,0,300,200));
-	pSprite1->setPosition(ccp(pageviewsize.width/2 + origin.x, pageviewsize.height/2 + origin.y));
+	CCSprite* pSprite1 = CCSprite::createWithTexture(texture,CCRect(0,0,pagesize.width,pagesize.height));
+	pSprite1->setPosition(ccp(pagesize.width/2 + origin.x, pagesize.height/2 + origin.y));
 
-	CCSprite* pSprite2 = CCSprite::createWithTexture(texture,CCRect(180,0,300,200));
-	pSprite2->setPosition(ccp(pageviewsize.width/2 + origin.x, pageviewsize.height/2 + origin.y));
+	CCSprite* pSprite2 = CCSprite::createWithTexture(texture,CCRect(180,0,pagesize.width,pagesize.height));
+	pSprite2->setPosition(ccp(pagesize.width/2 + origin.x, pagesize.height/2 + origin.y));
 
 
-	CCSprite* pSprite3 = CCSprite::createWithTexture(texture,CCRect(280,0,300,200));
-	pSprite3->setPosition(ccp(pageviewsize.width/2 + origin.x, pageviewsize.height/2 + origin.y));
+	CCSprite* pSprite3 = CCSprite::createWithTexture(texture,CCRect(280,0,pagesize.width,pagesize.height));
+	pSprite3->setPosition(ccp(pagesize.width/2 + origin.x, pagesize.height/2 + origin.y));
 
-	CCSprite* pSprite4 = CCSprite::createWithTexture(texture,CCRect(380,0,300,200));
-	pSprite4->setPosition(ccp(pageviewsize.width/2 + origin.x, pageviewsize.height/2 + origin.y));
+	CCSprite* pSprite4 = CCSprite::createWithTexture(texture,CCRect(380,0,pagesize.width,pagesize.height));
+	pSprite4->setPosition(ccp(pagesize.width/2 + origin.x, pagesize.height/2 + origin.y));
 
 
 	//pageview->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
@@ -86,6 +88,7 @@ bool SceneMain::init()
 	pageview->addPage(page2);
 	pageview->addPage(page3);
 	pageview->addPage(page4);
+	pageview->setCurPage(2);
 	this->addChild(pageview);
 
 
