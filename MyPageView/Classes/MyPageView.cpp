@@ -48,12 +48,12 @@ void MyPage::modifyChildPosition(cocos2d::CCNode *child)
 	CCSize  pagesize = m_PageView->GetPageSize();
 	CCPoint pos = child->getPosition();
 	if(m_PageView->getDirection() == kCCScrollViewDirectionHorizontal){
-		pos.x += m_posInPageView.x+(m_pagenum-1)*(viewsize.width/2);
+		pos.x += m_posInPageView.x+(m_pagenum-1)*(pagesize.width/2);
 		pos.y += m_posInPageView.y;
 	}
 	else{
 		pos.x += m_posInPageView.x;
-		pos.y += m_posInPageView.y+(m_pagenum-1)*(viewsize.height/2)+(viewsize.height-pagesize.height)/2;	
+		pos.y += m_posInPageView.y+(m_pagenum-1)*(pagesize.height/2);	
 	}
 	child->setPosition(pos);		
 }
@@ -70,14 +70,14 @@ void MyPageView::addPage(MyPage *page){
 	page->setContentSize(m_PageSize);
 	CCSize viewsize = getViewSize();
 	if(getDirection() == kCCScrollViewDirectionHorizontal){
-		setContentSize(CCSizeMake(viewsize.width*pagenum,viewsize.height));//设置scrollview区域的大小
-		page->m_posInPageView.x += (((pagenum-1)*(viewsize.width/2)) + (viewsize.width - m_PageSize.width)/2);
+		setContentSize(CCSizeMake(m_PageSize.width*pagenum,m_PageSize.height));//设置scrollview区域的大小
+		page->m_posInPageView.x += (((pagenum-1)*(m_PageSize.width/2)) + (viewsize.width - m_PageSize.width)/2);
 		page->m_posInPageView.y += (viewsize.height - m_PageSize.height)/2;
 	}
 	else{
-		setContentSize(CCSizeMake(viewsize.width,viewsize.height*pagenum));//设置scrollview区域的大小
+		setContentSize(CCSizeMake(m_PageSize.width,m_PageSize.height*pagenum));//设置scrollview区域的大小
 		page->m_posInPageView.x += (viewsize.width - m_PageSize.width)/2;
-		page->m_posInPageView.y += (((pagenum-1)*(viewsize.height/2)) + (viewsize.height - m_PageSize.height)/2);
+		page->m_posInPageView.y += (((pagenum-1)*(m_PageSize.height/2)) + (viewsize.height - m_PageSize.height)/2);
 	}
 	page->setPosition(CCPointZero);
 	for(size_t i = 0;i < page->m_Children.size(); ++i){
@@ -100,9 +100,9 @@ void MyPageView::setCurPage(size_t page){
 	m_currPage = page;
 	CCPoint offset = getContentOffset();
 	if(m_eDirection == kCCScrollViewDirectionHorizontal)
-		setContentOffset(ccp(-(offset.x+(m_currPage-1)*getViewSize().width), offset.y));
+		setContentOffset(ccp(-(offset.x+(m_currPage-1)*m_PageSize.width), offset.y));
 	else
-		setContentOffset(ccp(offset.x, -(offset.y+(m_currPage-1)*getViewSize().height)));
+		setContentOffset(ccp(offset.x, -(offset.y+(m_currPage-1)*m_PageSize.height)));
 
 }
 
@@ -132,6 +132,7 @@ MyPageView::MyPageView()
 , m_targetPage(INVALID_PAGE)
 , m_touchBeganTime(0)
 , m_touchBeganOffset(0)
+,m_PageDuration(0.5f)
 {
 }
 
@@ -896,7 +897,6 @@ int  MyPageView::getScriptHandler(int nScriptEventType)
 void MyPageView::__pageTouchBegan()
 {
 	if(( m_eDirection != kCCScrollViewDirectionHorizontal && m_eDirection != kCCScrollViewDirectionVertical )) return ;
-	m_Pages[m_currPage-1]->onPageScroll();
 	m_touchBeganTime = clock();
 	m_touchBeganOffset = m_eDirection == kCCScrollViewDirectionHorizontal ? getContentOffset().x : getContentOffset().y;
 
@@ -913,7 +913,61 @@ bool MyPageView::__pageTouchEnd()
 	const float MIN_PAGE = 1;
 
 	float currOffset = m_eDirection == kCCScrollViewDirectionHorizontal ? getContentOffset().x : getContentOffset().y;
+	int   oldpage = m_currPage;
+	if(m_eDirection == kCCScrollViewDirectionHorizontal){
+		int   pagemove = (currOffset - m_touchBeganOffset)/m_PageSize.width;
+		int   tarpage;
+		if(pagemove > 0){
+			//向左滑动
+			tarpage = m_currPage - pagemove;
+			if(tarpage < 0) m_currPage = 1;
+			else m_currPage = tarpage;
+			pagemove = abs(oldpage-m_currPage);
+			if(pagemove > 1){
+				currOffset += pagemove * m_PageSize.width;
+			}
+		}else if(pagemove < 0){
+			//向右滑动
+			tarpage = m_currPage - pagemove;
+			if(tarpage > (int)m_Pages.size()) m_currPage = (int)m_Pages.size();
+			else m_currPage = tarpage;
+			if(pagemove > 1){
+				currOffset -= pagemove * m_PageSize.width;
+			}
+		}
+	}else{
+		int   pagemove = (currOffset - m_touchBeganOffset)/m_PageSize.height;
+		int   tarpage;
+		if(pagemove > 0){
+			//向上滑动
+			tarpage = m_currPage - pagemove;
+			if(tarpage < 0) m_currPage = 1;
+			else m_currPage = tarpage;
+			pagemove = abs(oldpage-m_currPage);
+			if(pagemove > 1){
+				currOffset += pagemove * m_PageSize.height;
+			}
+		}else if(pagemove < 0){
+			//向下滑动
+			tarpage = m_currPage - pagemove;
+			if(tarpage > (int)m_Pages.size()) m_currPage = (int)m_Pages.size();
+			else m_currPage = tarpage;
+			if(pagemove > 1){
+				currOffset -= pagemove * m_PageSize.height;
+			}
+		}	
+	}
+
 	float deltaOffset = -(currOffset - m_touchBeganOffset);
+
+	if(!(deltaOffset > 0 || deltaOffset < 0)){ 
+		m_Pages[m_currPage-1]->onPage();
+		if(oldpage != m_currPage)
+			m_Pages[oldpage-1]->onPageChange();
+		return false;
+	}
+
+
 	clock_t currTime = clock();
 	float speed =  currTime != m_touchBeganTime ? deltaOffset / ( currTime - m_touchBeganTime ) : 0;
 
@@ -947,11 +1001,12 @@ bool MyPageView::__pageTouchEnd()
 	else if( m_targetPage < MIN_PAGE ) m_targetPage = 1;
 	
 	int delta = m_targetPage - 1;
-	float targetOffset = -delta*( m_eDirection == kCCScrollViewDirectionHorizontal ? getViewSize().width:getViewSize().height);
-	float pageDurateion = 0.5;
+	float targetOffset = -delta*( m_eDirection == kCCScrollViewDirectionHorizontal ? m_PageSize.width:m_PageSize.height);
 	CCPoint targetPointOffset = m_eDirection == kCCScrollViewDirectionHorizontal ? ccp( targetOffset, getContentOffset().y ) : ccp(getContentOffset().x, targetOffset );
-	setContentOffsetInDuration(targetPointOffset, pageDurateion);
+	setContentOffsetInDuration(targetPointOffset, m_PageDuration);
 	m_currPage = m_targetPage;
+	if(oldpage != m_currPage)
+		m_Pages[oldpage-1]->onPageChange();
 	return true;
 }
 void MyPageView::__pageTouchCancel()

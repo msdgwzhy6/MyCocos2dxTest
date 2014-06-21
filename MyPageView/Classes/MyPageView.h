@@ -9,7 +9,7 @@ using namespace cocos2d::extension;
 class MyPageView;
 
 enum {
-	MyPage_Horizontal,//水平翻页
+	MyPage_Horizontal,//水平翻页奥
 	MyPage_Vertical,  //垂直翻页
 };
 
@@ -22,8 +22,8 @@ public:
     virtual void addChild(cocos2d::CCNode * child, int zOrder);
     virtual void addChild(cocos2d::CCNode * child);
 
-	virtual void onPage(){}        //滑动停在当前页时调用
-	virtual void onPageScroll(){}  //当前页被触摸时调用
+	virtual void onPage(){}			//切换到当前页时调用
+	virtual void onPageChange(){}   //从当前页切换到其他页时调用
 
 protected:
 	MyPage():m_PageView(NULL){}
@@ -38,6 +38,7 @@ class MyPageView : public CCLayer
 {
 public:
 
+	void setPageDuration(float duration) {m_PageDuration = duration;}
 	void addPage(MyPage*);    //增加一个页面
 	int  getCurPage(){return m_currPage;}
 
@@ -334,6 +335,7 @@ private:
     std::map<int,int>    m_mapScriptHandler;
 	std::vector<MyPage*> m_Pages;          //所有页面
 	CCSize               m_PageSize;       //每页的大小
+	float                m_PageDuration;   //页面滚动时间
 };
 
 #endif
