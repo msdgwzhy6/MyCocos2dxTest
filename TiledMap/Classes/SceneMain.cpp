@@ -1,5 +1,6 @@
 #include "SceneMain.h"
 #include "cocos2d.h"
+#include "DBWindow.h"
 
 USING_NS_CC;
 
@@ -21,11 +22,14 @@ bool SceneMain::init()
 	m_totalNumX = nXnum;
 	m_totalNumY = nYnum;
 
-	std::vector<int> values;
+	std::map<std::pair<int,int>,int> values;
 	m_pTiledGrid = (tiled**)calloc((nXnum*nYnum),sizeof(*m_pTiledGrid));
 	m_screen2tiled = new std::list<tiled*>[nXnum*nYnum];
 	float start_x = m_worldsize.width/2;
 	float start_y = m_worldsize.height-8;
+	CCTMXTiledMap *map = CCTMXTiledMap::create("level1.tmx");
+	CCTMXLayer *meta =  map->layerNamed("barrier");
+
 	for (int y=0;y<nYnum;y++)
 	{
 		for (int x=0;x<nXnum;x++)
@@ -35,7 +39,21 @@ bool SceneMain::init()
 			tmp->r = y;
 			tmp->c = x;
 			m_pTiledGrid[nXnum*y+x] = tmp;
-			values.push_back(0);
+
+			do{
+				int tiledGid = meta->tileGIDAt(ccp(x,y));
+				if(tiledGid != 0) {
+					CCDictionary* propertiesDict = map->propertiesForGID(tiledGid);
+					const CCString* prop = propertiesDict->valueForKey("Collidable");
+					if(prop->m_sString.compare("true") == 0){
+						values.insert(std::make_pair(std::make_pair(x,y),0xFFFFFFFF));
+						DBWindowWrite(&g_console,TEXT("cli:(%d,%d)\n"),x,y);
+						break;
+					}
+				}
+				values.insert(std::make_pair(std::make_pair(x,y),0));
+			}
+			while(0);
 			int r = ((tmp->point).y)/16;
 			int c = ((tmp->point).x)/16;
 			m_screen2tiled[nXnum*r+c].push_back(tmp);
@@ -45,7 +63,6 @@ bool SceneMain::init()
 
 	}
 	m_astar.Init(nXnum,nYnum,values);
-	CCTMXTiledMap *map = CCTMXTiledMap::create("level1.tmx");
 	this->addChild(map);
 	this->setTouchEnabled(true);
 	this->scheduleUpdate();
@@ -56,15 +73,16 @@ void  SceneMain::onAsynLoadFinish(){
 
 	CEntity *e = CEntity::create(RT_CAT);
 	e->setScale(0.7f);
-	CCSize winsize = CCDirector::sharedDirector()->getWinSize();
-	CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
-	CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
-	e->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-	e->targetPoint = ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y);
+	CCPoint pos = m_pTiledGrid[14*m_totalNumX+14]->point;
+	pos.y += 10;
+
+	e->setPosition(pos);
+	e->targetPoint = pos;
+	
 	this->addChild(e);
 	e->Run(1);
 	m_maincha = e;
-	m_curtiled = Screen2Tiled(e->targetPoint);
+	m_curtiled = m_pTiledGrid[14*m_totalNumX+14];
 }
 
 
@@ -116,7 +134,6 @@ void SceneMain::update(float tick){
 	bool doMov = false;
 	do{
 		if(!point.equals(m_maincha->targetPoint)){
-
 			CCPoint oriPoint = point;
 			float delta_x = m_maincha->targetPoint.x - point.x;
 			float delta_y = m_maincha->targetPoint.y - point.y;		

@@ -69,8 +69,12 @@ private:
 			int x = mnode->x + direction[i][0];
 			int y = mnode->y + direction[i][1];
 			mapnode *tmp = get_mapnode(x,y);
-			if(tmp && tmp->value != 0xFFFFFFFF)
-				m_neighbors.push_back(tmp);
+			if(tmp){
+				if(tmp->value != 0xFFFFFFFF)
+					m_neighbors.push_back(tmp);
+				else
+					printf("here\n");
+			}
 		}
 		if(m_neighbors.empty()) return NULL;
 		else return &m_neighbors;
@@ -117,7 +121,7 @@ private:
 public:
 	AStar():open_list(8192,_less,_clear){}
 
-	bool Init(int x,int y,std::vector<int> &values);
+	bool Init(int x,int y,std::map<std::pair<int,int>,int> &values);
 
 	~AStar(){
 		if(m_map) free(m_map);

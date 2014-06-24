@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-
+#include "DBWindow.h"
 int direction[8][2] = {
 	{0,-1},//ио
 	{0,1},//об
@@ -16,7 +16,7 @@ int direction[8][2] = {
 };	
 
 
-bool AStar::Init(int x,int y,std::vector<int> &values){
+bool AStar::Init(int x,int y,std::map<std::pair<int,int>,int> &values){
 	
 	if(x < 0 || y < 0 || x*y != values.size()) 
 		return false;
@@ -26,6 +26,7 @@ bool AStar::Init(int x,int y,std::vector<int> &values){
 	int i = 0;
 	int j = 0;
 	int c = 0;
+	DBWindowWrite(&g_console,TEXT("###################################\n"));
 	for( ; i < m_ycount; ++i)
 	{
 		for(j = 0; j < m_xcount;++j)
@@ -33,7 +34,12 @@ bool AStar::Init(int x,int y,std::vector<int> &values){
 			mapnode *tmp = &m_map[i*m_xcount+j];
 			tmp->x = j;
 			tmp->y = i;
-			tmp->value = values[c++];
+			
+			std::pair<int,int> idx = std::make_pair(tmp->x,tmp->y);
+			tmp->value = values[idx];
+			if(tmp->value == 0xFFFFFFFF){
+				DBWindowWrite(&g_console,TEXT("cli:(%d,%d)\n"),tmp->x,tmp->y);
+			}
 		}
 	}
 	return true;
