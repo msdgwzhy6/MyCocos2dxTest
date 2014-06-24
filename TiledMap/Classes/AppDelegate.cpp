@@ -27,7 +27,11 @@ THE SOFTWARE.
 #include <vector>
 #include <string>
 #include "ResourcesReader.h"
-
+#include "net.h"
+#include "systime.h"
+#include "netcmd.h"
+#include "netcs.h"
+#include "netsc.h"
 #include "AppMacros.h"
 
 USING_NS_CC;
@@ -98,6 +102,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
     pDirector->setAnimationInterval(1.0 / 30);
 
 	ResourcesReader::GetInstance()->InitRole();
+
+	comm::Init();
+	SET_HANDLE_FUNC(CMD_SC_ENTERSEE,SceneMain::CMD_ENTERSEE);
+	SET_HANDLE_FUNC(CMD_SC_LEVSEE,SceneMain::CMD_ENDSEE);
+	SET_HANDLE_FUNC(CMD_SC_MOV,SceneMain::CMD_MOV);
+	SET_HANDLE_FUNC(CMD_SC_BEGPLY,SceneMain::CMD_BEGPLY);
+	//SET_HANDLE_FUNC(CMD_SC_BEGPLY,on_begply);
 
     // create a scene. it's an autorelease object
     //CCScene *pScene = TestLogin::scene();

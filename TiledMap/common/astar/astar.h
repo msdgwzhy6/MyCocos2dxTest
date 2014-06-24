@@ -72,8 +72,6 @@ private:
 			if(tmp){
 				if(tmp->value != 0xFFFFFFFF)
 					m_neighbors.push_back(tmp);
-				else
-					printf("here\n");
 			}
 		}
 		if(m_neighbors.empty()) return NULL;

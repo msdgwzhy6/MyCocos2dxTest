@@ -1,8 +1,9 @@
 #include "entity.h"
 #include "SimpleAudioEngine.h"
+#include "SceneMain.h"
 USING_NS_CC;
 using namespace cocos2d::extension;
-
+extern SceneMain *g_scenemain;
 
 CEntity *CEntity::createWithTexture(CCTexture2D *pTexture,RoleType type){
 	CEntity *p_Entity = new CEntity;
@@ -96,7 +97,90 @@ cocos2d::CCAction* CEntity::Dead()
 	return runAction(CCRepeat::create(CCAnimate::create(animation),1));
 }
 
+static unsigned char Direction(tiled *old_t,tiled *new_t,unsigned char olddir){
+	
+	unsigned char dir = olddir;	
+	if(new_t->r == old_t->r){
+		if(new_t->c > old_t->c)
+			dir = east;
+		else if(new_t->c < old_t->c)
+			dir = west;
+	}else if(new_t->r > old_t->r){
+		if(new_t->c > old_t->c)
+			dir = south_east;
+		else if(new_t->c < old_t->c)
+			dir = south_west;
+		else 
+			dir = south;
+	}else{
+		if(new_t->c > old_t->c)
+			dir = north_east;
+		else if(new_t->c < old_t->c)
+			dir = north_west;
+		else 
+			dir = north;	
+	
+	}
+	return dir;
+}
+
 void CEntity::update()
 {
+	if(!m_curtiled) return;
+	CCPoint point = getPosition();
+	if(!m_nexttiled && !m_path.empty()){
+		AStar::mapnode *node = m_path.front();
+		m_path.pop_front();
+		m_nexttiled = g_scenemain->m_pTiledGrid[node->y*g_scenemain->m_totalNumX+node->x];
+	}
 
+	if(!m_nexttiled){ 
+		Idle();
+		return;
+	}
+	
+	targetPoint = m_nexttiled->point;
+	bool doMov = false;
+	do{
+		if(!point.equals(targetPoint)){
+			CCPoint oriPoint = point;
+			float delta_x = targetPoint.x - point.x;
+			float delta_y = targetPoint.y - point.y;		
+			float speed = 3.0f;
+			if(abs(delta_x) > speed) delta_x = delta_x/abs(delta_x)*speed;
+			if(abs(delta_y) > speed) delta_y = delta_y/abs(delta_y)*speed;
+			point.x += delta_x;
+			point.y += delta_y;
+			setPosition(point); 
+			CCRect rect = g_scenemain->m_tree->boundingBox();
+			if(rect.containsPoint(point)){
+				CCRGBAProtocol *pRGBAProtocol = dynamic_cast<CCRGBAProtocol*>(g_scenemain->m_tree);
+				if (pRGBAProtocol)
+					pRGBAProtocol->setOpacity((GLubyte)(180));
+			}else{
+				CCRGBAProtocol *pRGBAProtocol = dynamic_cast<CCRGBAProtocol*>(g_scenemain->m_tree);
+				if (pRGBAProtocol)
+					pRGBAProtocol->setOpacity((GLubyte)(255));				
+			}
+			Run(Direction(m_curtiled,m_nexttiled,GetDirection()));
+			doMov = true;
+		}
+		else
+		{
+			m_curtiled = m_nexttiled;
+			if(m_path.empty()){
+				DBWindowWrite(&g_console,TEXT("arrive:(%d,%d)\n"),m_curtiled->c,m_curtiled->r);
+				m_nexttiled = NULL;
+				Idle();
+				return;
+			}
+			else{
+				AStar::mapnode *node = m_path.front();
+				m_path.pop_front();
+				m_nexttiled = g_scenemain->m_pTiledGrid[node->y*g_scenemain->m_totalNumX+node->x];
+				targetPoint = m_nexttiled->point;
+			}
+
+		}
+	}while(!doMov);
 }

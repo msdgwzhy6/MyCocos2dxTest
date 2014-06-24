@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-#include "DBWindow.h"
 int direction[8][2] = {
 	{0,-1},//ио
 	{0,1},//об
@@ -26,7 +25,6 @@ bool AStar::Init(int x,int y,std::map<std::pair<int,int>,int> &values){
 	int i = 0;
 	int j = 0;
 	int c = 0;
-	DBWindowWrite(&g_console,TEXT("###################################\n"));
 	for( ; i < m_ycount; ++i)
 	{
 		for(j = 0; j < m_xcount;++j)
@@ -37,9 +35,6 @@ bool AStar::Init(int x,int y,std::map<std::pair<int,int>,int> &values){
 			
 			std::pair<int,int> idx = std::make_pair(tmp->x,tmp->y);
 			tmp->value = values[idx];
-			if(tmp->value == 0xFFFFFFFF){
-				DBWindowWrite(&g_console,TEXT("cli:(%d,%d)\n"),tmp->x,tmp->y);
-			}
 		}
 	}
 	return true;

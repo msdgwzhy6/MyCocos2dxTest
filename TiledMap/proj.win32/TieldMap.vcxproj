@@ -69,7 +69,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\cocos2dx;$(ProjectDir)..\..\..\..\cocos2dx\include;$(ProjectDir)..\..\..\..\cocos2dx\kazmath\include;$(ProjectDir)..\..\..\..\cocos2dx\platform\win32;$(ProjectDir)..\..\..\..\cocos2dx\platform\third_party\win32\OGLES;..\Classes;$(ProjectDir)..\..\..\..\extensions\;D:\git\cocos2d-x-2.2.3\CocosDenshion\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\cocos2dx;$(ProjectDir)..\..\..\..\cocos2dx\include;$(ProjectDir)..\..\..\..\cocos2dx\kazmath\include;$(ProjectDir)..\..\..\..\cocos2dx\platform\win32;$(ProjectDir)..\..\..\..\cocos2dx\platform\third_party\win32\OGLES;..\Classes;$(ProjectDir)..\..\..\..\extensions\;D:\git\cocos2d-x-2.2.3\CocosDenshion\include;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;COCOS2D_DEBUG=1;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_WIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -124,24 +124,39 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
-    <ClCompile Include="..\Classes\astar.cpp" />
-    <ClCompile Include="..\Classes\DBWindow.cpp" />
     <ClCompile Include="..\Classes\entity.cpp" />
     <ClCompile Include="..\Classes\ResourcesReader.cpp" />
     <ClCompile Include="..\Classes\SceneMain.cpp" />
+    <ClCompile Include="..\common\astar\astar.cpp" />
+    <ClCompile Include="..\common\DBWindow.cpp" />
+    <ClCompile Include="..\common\netcs.cpp" />
+    <ClCompile Include="..\common\netsc.cpp" />
+    <ClCompile Include="..\common\Reactor.cpp" />
+    <ClCompile Include="..\common\Socket.cpp" />
+    <ClCompile Include="..\common\systime.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\AppDelegate.h" />
     <ClInclude Include="..\Classes\AppMacros.h" />
-    <ClInclude Include="..\Classes\astar.h" />
-    <ClInclude Include="..\Classes\DBWindow.h" />
-    <ClInclude Include="..\Classes\dlist.h" />
     <ClInclude Include="..\Classes\entity.h" />
-    <ClInclude Include="..\Classes\llist.h" />
-    <ClInclude Include="..\Classes\minheap.h" />
     <ClInclude Include="..\Classes\ResourcesReader.h" />
     <ClInclude Include="..\Classes\SceneMain.h" />
+    <ClInclude Include="..\common\astar\astar.h" />
+    <ClInclude Include="..\common\ByteBuffer.h" />
+    <ClInclude Include="..\common\DBWindow.h" />
+    <ClInclude Include="..\common\dlist.h" />
+    <ClInclude Include="..\common\llist.h" />
+    <ClInclude Include="..\common\minheap.h" />
+    <ClInclude Include="..\common\net.h" />
+    <ClInclude Include="..\common\netcmd.h" />
+    <ClInclude Include="..\common\netcs.h" />
+    <ClInclude Include="..\common\netsc.h" />
+    <ClInclude Include="..\common\Reactor.h" />
+    <ClInclude Include="..\common\RPacket.h" />
+    <ClInclude Include="..\common\Socket.h" />
+    <ClInclude Include="..\common\systime.h" />
+    <ClInclude Include="..\common\WPacket.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <ItemGroup>

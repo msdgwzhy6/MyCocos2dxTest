@@ -4,7 +4,7 @@
 #include "cocos2d.h"
 #include "cocos-ext.h"
 #include "ResourcesReader.h"
-#include "astar.h"
+#include "astar/astar.h"
 #include "dlist.h"
 class SceneMap;
 
@@ -19,6 +19,11 @@ enum{
 	BF_TOUCH,
 };
 
+struct tiled{
+	int c;
+	int r;
+	cocos2d::CCPoint point;
+};
 
 class CEntity : public cocos2d::CCSprite,public dnode
 {
@@ -38,9 +43,12 @@ public:
 	RoleType GetRoleType(){return m_rType;}
 	AniType GetAniType(){return m_Atype;}
 	
+	unsigned long long identity;
 	cocos2d::CCPoint   targetPoint;
 	std::list<AStar::mapnode*> m_path;
-	CEntity(){}
+	tiled*              m_curtiled;
+	tiled*              m_nexttiled;
+	CEntity():m_curtiled(NULL),m_nexttiled(NULL){}
 private:
 	int m_Direction;
 	RoleType m_rType;
