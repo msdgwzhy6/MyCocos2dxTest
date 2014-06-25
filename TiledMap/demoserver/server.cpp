@@ -304,8 +304,8 @@ void process_packet(net::Socket *s,net::RPacket &rpk){
 			player *ply = new player;
 			ply->m_sock = s;
 			ply->dir = rand()%8;
-			ply->x = 1;
-			ply->y = 11;
+			ply->x = 52;
+			ply->y = 7;
 			ply->m_lasttick = GetSystemMs();
 			ply->m_movmargin = 0;
 			g_plys.insert(std::make_pair(s,ply));
@@ -361,7 +361,7 @@ void new_client(net::Socket *s){
 int main(int argc,char **argv){
 	if(argc < 3) return 0;
 	net::init();
-	g_map.init(30,30);
+	g_map.init(60,60);
 	reactor = new net::Reactor;
 	net::Socket *l = new net::Socket(AF_INET, SOCK_STREAM,IPPROTO_TCP);
 	l->Listen(reactor,argv[1],atol(argv[2]),new_client);

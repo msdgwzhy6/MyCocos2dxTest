@@ -1,6 +1,7 @@
 #include "entity.h"
 #include "SimpleAudioEngine.h"
 #include "SceneMain.h"
+#include "DBWindow.h"
 USING_NS_CC;
 using namespace cocos2d::extension;
 extern SceneMain *g_scenemain;
@@ -127,7 +128,7 @@ static unsigned char Direction(tiled *old_t,tiled *new_t,unsigned char olddir){
 void CEntity::update()
 {
 	if(!m_curtiled) return;
-	CCPoint point = getPosition();
+	CCPoint point = worldPoint;
 	if(!m_nexttiled && !m_path.empty()){
 		AStar::mapnode *node = m_path.front();
 		m_path.pop_front();
@@ -136,6 +137,7 @@ void CEntity::update()
 
 	if(!m_nexttiled){ 
 		Idle();
+		setPosition(g_scenemain->World2Screen(worldPoint));
 		return;
 	}
 	
@@ -151,8 +153,14 @@ void CEntity::update()
 			if(abs(delta_y) > speed) delta_y = delta_y/abs(delta_y)*speed;
 			point.x += delta_x;
 			point.y += delta_y;
-			setPosition(point); 
-			CCRect rect = g_scenemain->m_tree->boundingBox();
+			worldPoint = point;
+			if(this == g_scenemain->m_maincha){
+				g_scenemain->m_map->setPositionX(g_scenemain->m_map->getPositionX()-delta_x);
+				g_scenemain->m_map->setPositionY(g_scenemain->m_map->getPositionY()-delta_y);
+			}else{
+				setPosition(g_scenemain->World2Screen(point));
+			}
+			/*CCRect rect = g_scenemain->m_tree->boundingBox();
 			if(rect.containsPoint(point)){
 				CCRGBAProtocol *pRGBAProtocol = dynamic_cast<CCRGBAProtocol*>(g_scenemain->m_tree);
 				if (pRGBAProtocol)
@@ -161,7 +169,7 @@ void CEntity::update()
 				CCRGBAProtocol *pRGBAProtocol = dynamic_cast<CCRGBAProtocol*>(g_scenemain->m_tree);
 				if (pRGBAProtocol)
 					pRGBAProtocol->setOpacity((GLubyte)(255));				
-			}
+			}*/
 			Run(Direction(m_curtiled,m_nexttiled,GetDirection()));
 			doMov = true;
 		}

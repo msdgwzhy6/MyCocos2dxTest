@@ -45,6 +45,7 @@ public:
 	
 	unsigned long long identity;
 	cocos2d::CCPoint   targetPoint;
+	cocos2d::CCPoint   worldPoint;
 	std::list<AStar::mapnode*> m_path;
 	tiled*              m_curtiled;
 	tiled*              m_nexttiled;

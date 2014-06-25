@@ -58,7 +58,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     pEGLView->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, kResolutionShowAll);
 #else
     //pEGLView->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, kResolutionNoBorder);
-	pEGLView->setDesignResolutionSize(480, 480, kResolutionNoBorder);
+	pEGLView->setDesignResolutionSize(480, 320, kResolutionNoBorder);
 #endif
 
     

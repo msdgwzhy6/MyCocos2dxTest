@@ -42,9 +42,16 @@ public:
 		return NULL;
 	}
 
-	//用于将触摸屏幕的点映射到寻路tiled
-	std::list<tiled*> *m_screen2tiled; 
-	tiled*  Screen2Tiled(const cocos2d::CCPoint&) const;
+	//世界点映射到寻路tiled
+	std::list<tiled*> *m_world2tiled; 
+	//世界坐标转换到对应的tiled
+	tiled*  World2Tiled(const cocos2d::CCPoint&) const;
+	//屏幕坐标转换到世界坐标
+	cocos2d::CCPoint Screen2World(const cocos2d::CCPoint&) const;
+	//世界坐标转换到屏幕坐标
+	cocos2d::CCPoint World2Screen(const cocos2d::CCPoint&) const;
+
+	void Addworld2tiled(tiled*t);
 
 	std::list<AStar::mapnode*> FindPath(tiled *from,tiled *to);
 
