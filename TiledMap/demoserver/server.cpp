@@ -35,9 +35,6 @@ struct point{
 	point(int x,int y):x(x),y(y){}
 };
 
-static inline double distance(int x1,int y1,int x2,int y2){
-	return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
-}
 
 enum{
 	north,
@@ -261,6 +258,21 @@ struct Map{
 	}
 };
 
+static const double tiled_width = 32;
+static const double tiled_hight = 16;
+
+static const double tiled_half_width = tiled_width/2;
+static const double tiled_half_hight = tiled_hight/2;
+
+double distance(int x,int y,int x1,int y1,int dir){
+	if(dir == north || dir == south || dir == east || dir == west)
+		return sqrt(tiled_half_width*tiled_half_width + tiled_half_hight*tiled_half_hight);
+	else if(dir == south_east || dir == north_west)
+		return tiled_hight;
+	else 
+		return tiled_width;
+}
+
 void player::tick(){
 	unsigned long now = GetSystemMs();
 	if(!m_path.empty()){
@@ -268,11 +280,12 @@ void player::tick(){
 		//计算移动一格需要的时间
 		AStar::mapnode *node = m_path.front();
 		while(node){
-			double dis = distance(x,y,node->x,node->y)*16.0f;
-			double speed = 4.0f * (1000/30) / 1000;
+			unsigned char tmpdir = Direction(point(x,y),point(node->x,node->y),dir);
+			double dis = distance(x,y,node->x,node->y,tmpdir);
+			double speed = 3.0f * 0.9 * (1000/30) / 1000;
 			unsigned long elapse =  (unsigned long)(dis/speed);
 			if(elapse <  m_movmargin){
-				dir = Direction(point(x,y),point(node->x,node->y),dir);
+				dir = tmpdir;
 				x = node->x;
 				y = node->y;
 				m_path.pop_front();
