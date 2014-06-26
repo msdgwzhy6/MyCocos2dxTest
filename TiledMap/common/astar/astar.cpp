@@ -54,7 +54,7 @@ bool AStar::find_path(int x,int y,int x1,int y1,std::list<mapnode*> &path)
 {
 	mapnode *from = get_mapnode(x,y);
 	mapnode *to = get_mapnode(x1,y1);
-	if(from == to){
+	if(from == to || to->value == 0xFFFFFFFF){
 		path.push_back(from);		
 		return true;
 	}

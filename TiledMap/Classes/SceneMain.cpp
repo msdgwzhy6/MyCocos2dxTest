@@ -4,30 +4,36 @@
 
 USING_NS_CC;
 
+static const int tiled_width = 32;
+static const int tiled_half_width = tiled_width/2;
+
+static const int tiled_hight = 16;
+static const int tiled_half_hight = tiled_hight/2;
+
 void SceneMain::Addworld2tiled(tiled *t){
 	//中
-	int r = ((t->point).y)/16;
-	int c = ((t->point).x)/16;
+	int r = ((t->point).y)/tiled_hight;
+	int c = ((t->point).x)/tiled_width;
 	if(r < m_totalNumY && c < m_totalNumX && r >= 0 && c >= 0)
 		m_world2tiled[m_totalNumX*r+c].push_back(t);
 	//上
-	r = ((t->point).y + 8)/16;
-	c = ((t->point).x)/16;
+	r = ((t->point).y + tiled_half_hight)/tiled_hight;
+	c = ((t->point).x)/tiled_width;
 	if(r < m_totalNumY && c < m_totalNumX && r >= 0 && c >= 0)
 		m_world2tiled[m_totalNumX*r+c].push_back(t);
 	//下
-	r = ((t->point).y - 8)/16;
-	c = ((t->point).x)/16;
+	r = ((t->point).y - tiled_half_hight)/tiled_hight;
+	c = ((t->point).x)/tiled_width;
 	if(r < m_totalNumY && c < m_totalNumX && r >= 0 && c >= 0)
 		m_world2tiled[m_totalNumX*r+c].push_back(t);
 	//左
-	r = ((t->point).y )/16;
-	c = ((t->point).x - 8)/16;
+	r = ((t->point).y )/tiled_hight;
+	c = ((t->point).x - tiled_half_width)/tiled_width;
 	if(r < m_totalNumY && c < m_totalNumX && r >= 0 && c >= 0)
 		m_world2tiled[m_totalNumX*r+c].push_back(t);
 	//右
-	r = ((t->point).y )/16;
-	c = ((t->point).x + 8)/16;
+	r = ((t->point).y )/tiled_hight;
+	c = ((t->point).x + tiled_half_width)/tiled_width;
 	if(r < m_totalNumY && c < m_totalNumX && r >= 0 && c >= 0)
 		m_world2tiled[m_totalNumX*r+c].push_back(t);
 }
@@ -43,9 +49,9 @@ bool SceneMain::init()
 	CCSize winsize = CCDirector::sharedDirector()->getWinSize();
 	CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
 	CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
-	m_worldsize = CCSize(960,960);
-	int nXnum = m_worldsize.width/16;
-	int nYnum = m_worldsize.height/16;
+	m_worldsize = CCSize(960,480);
+	int nXnum = m_worldsize.width/tiled_width;
+	int nYnum = m_worldsize.height/tiled_hight;
 	m_totalNumX = nXnum;
 	m_totalNumY = nYnum;
 
@@ -53,7 +59,7 @@ bool SceneMain::init()
 	m_pTiledGrid = (tiled**)calloc((nXnum*nYnum),sizeof(*m_pTiledGrid));
 	m_world2tiled = new std::list<tiled*>[nXnum*nYnum];
 	float start_x = m_worldsize.width/2;
-	float start_y = m_worldsize.height-8;
+	float start_y = m_worldsize.height-tiled_half_hight;
 	m_map = CCTMXTiledMap::create("level1.tmx");
 	CCTMXLayer *meta =  m_map->layerNamed("barrier");
 
@@ -62,7 +68,7 @@ bool SceneMain::init()
 		for (int x=0;x<nXnum;x++)
 		{
 			tiled *tmp = new tiled;
-			tmp->point =  ccp(start_x+x*8,start_y-x*8);//90度视角中心点世界坐标
+			tmp->point =  ccp(start_x+x*16,start_y-x*8);//90度视角中心点世界坐标
 			tmp->r = y;
 			tmp->c = x;
 			m_pTiledGrid[nXnum*y+x] = tmp;
@@ -70,46 +76,29 @@ bool SceneMain::init()
 				int tiledGid = meta->tileGIDAt(ccp(x,y));
 				if(tiledGid != 0) {
 					CCDictionary* propertiesDict = m_map->propertiesForGID(tiledGid);
-					const CCString* prop = propertiesDict->valueForKey("Collidable");
-					if(prop->m_sString.compare("true") == 0){
-						values.insert(std::make_pair(std::make_pair(x,y),0xFFFFFFFF));
-						DBWindowWrite(&g_console,TEXT("cli:(%d,%d)\n"),x,y);
-						break;
+					if(propertiesDict){
+						const CCString* prop = propertiesDict->valueForKey("Collidable");
+						if(prop->m_sString.compare("true") == 0){
+							values.insert(std::make_pair(std::make_pair(x,y),0xFFFFFFFF));
+							DBWindowWrite(&g_console,TEXT("cli:(%d,%d)\n"),x,y);
+							break;
+						}
 					}
 				}
 				values.insert(std::make_pair(std::make_pair(x,y),0));
 			}
 			while(0);
 			Addworld2tiled(tmp);
-			//int r = ((tmp->point).y)/16;
-			//int c = ((tmp->point).x)/16;
-			//m_world2tiled[nXnum*r+c].push_back(tmp);
 		}
-		start_y -= 8;
-		start_x -= 8;
+		start_y -= tiled_half_hight;
+		start_x -= tiled_half_width;
 
 	}
 	m_astar.Init(nXnum,nYnum,values);
-	m_map->setPosition(ccp(-240,-320));
+	m_map->setPosition(ccp(-240,-80));
 	this->addChild(m_map);
 	this->setTouchEnabled(true);
 	this->scheduleUpdate();
-	//CCTexture2D *texture = CCTextureCache::sharedTextureCache()->addImage("bush.png");
-	//m_tree = CCSprite::createWithTexture(texture);
-	//m_tree->setScale(0.7f);
-	//m_tree->setPosition(ccp(250,250));
-	//this->addChild(m_tree);
-	for (int y=0;y<nYnum;y++)
-	{
-		for (int x=0;x<nXnum;x++)
-		{
-			std::list<tiled*>::iterator it = m_world2tiled[y*m_totalNumX + x].begin();
-			std::list<tiled*>::iterator end = m_world2tiled[y*m_totalNumX + x].end();
-			for(; it != end; ++it){
-				//CCPoint p(x*16+8,y*16+8);
-			}
-		}
-	}
 	return true;
 }
 
@@ -160,9 +149,10 @@ CCScene* SceneMain::scene()
 
 
 tiled* SceneMain::World2Tiled(const cocos2d::CCPoint &worldpos) const{
-	int c = worldpos.x/16.0;
-	int r = worldpos.y/16.0;
-	if(c >= m_worldsize.width/16.0 || r >= m_worldsize.height/16.0) return NULL;	
+	int c = worldpos.x/tiled_width;
+	int r = worldpos.y/tiled_hight;
+	if(c >= m_worldsize.width/tiled_width || r >= m_worldsize.height/tiled_hight || r < 0 || c < 0) 
+		return NULL;	
 	std::list<tiled*>::iterator it = m_world2tiled[r*m_totalNumX + c].begin();
 	std::list<tiled*>::iterator end = m_world2tiled[r*m_totalNumX + c].end();
 	tiled *bestfit = NULL;
@@ -196,9 +186,8 @@ void SceneMain::ccTouchesBegan( cocos2d::CCSet *pTouche, cocos2d::CCEvent *pEven
 	CCTouch* touch = (CCTouch*)pTouche->anyObject();
 	CCPoint pos = CCDirector::sharedDirector()->convertToUI(touch->getLocationInView());
 	tiled* t = World2Tiled(Screen2World(pos));
-	DBWindowWrite(&g_console,TEXT("cur(%d,%d),tar(%d,%d)\n"),m_maincha->m_curtiled->c,m_maincha->m_curtiled->r,t->c,t->r);
 	if(!t) return;
-
+	DBWindowWrite(&g_console,TEXT("cur(%d,%d),tar(%d,%d)\n"),m_maincha->m_curtiled->c,m_maincha->m_curtiled->r,t->c,t->r);
 	m_maincha->m_path = FindPath(m_maincha->m_curtiled,t);
 	if(!m_maincha->m_path.empty()){
 		AStar::mapnode *t = m_maincha->m_path.back();

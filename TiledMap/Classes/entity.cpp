@@ -146,30 +146,37 @@ void CEntity::update()
 	do{
 		if(!point.equals(targetPoint)){
 			CCPoint oriPoint = point;
-			float delta_x = targetPoint.x - point.x;
-			float delta_y = targetPoint.y - point.y;		
+			float dis = point.getDistance(targetPoint);
 			float speed = 3.0f;
-			if(abs(delta_x) > speed) delta_x = delta_x/abs(delta_x)*speed;
-			if(abs(delta_y) > speed) delta_y = delta_y/abs(delta_y)*speed;
-			point.x += delta_x;
-			point.y += delta_y;
+			float delta_x;
+			float delta_y;
+			if(dis > speed){				
+				delta_x = targetPoint.x - point.x;
+				delta_y = targetPoint.y - point.y;
+				if(abs(delta_x) < 0.0000001f) delta_x = 0;
+				else if(delta_x > 0) delta_x = speed;
+				else delta_x = -speed;
+
+				if(abs(delta_y) < 0.0000001f) delta_y = 0;
+				else if(delta_y > 0) delta_y = speed/2;
+				else delta_y = -speed/2;
+
+				if(abs(delta_x) < 0.0000001f) delta_y*=2;
+
+				point.x += delta_x;
+				point.y += delta_y;			
+			}else{
+				delta_x = targetPoint.x - point.x;
+				delta_y = targetPoint.y - point.y;
+				point = targetPoint;
+			}
 			worldPoint = point;
-			if(this == g_scenemain->m_maincha){
+			if(this == g_scenemain->m_maincha){				
 				g_scenemain->m_map->setPositionX(g_scenemain->m_map->getPositionX()-delta_x);
 				g_scenemain->m_map->setPositionY(g_scenemain->m_map->getPositionY()-delta_y);
 			}else{
 				setPosition(g_scenemain->World2Screen(point));
 			}
-			/*CCRect rect = g_scenemain->m_tree->boundingBox();
-			if(rect.containsPoint(point)){
-				CCRGBAProtocol *pRGBAProtocol = dynamic_cast<CCRGBAProtocol*>(g_scenemain->m_tree);
-				if (pRGBAProtocol)
-					pRGBAProtocol->setOpacity((GLubyte)(180));
-			}else{
-				CCRGBAProtocol *pRGBAProtocol = dynamic_cast<CCRGBAProtocol*>(g_scenemain->m_tree);
-				if (pRGBAProtocol)
-					pRGBAProtocol->setOpacity((GLubyte)(255));				
-			}*/
 			Run(Direction(m_curtiled,m_nexttiled,GetDirection()));
 			doMov = true;
 		}
