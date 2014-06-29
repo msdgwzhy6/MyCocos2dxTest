@@ -16,8 +16,6 @@ CEntity *CEntity::createWithTexture(CCTexture2D *pTexture,RoleType type){
 		delete p_Entity;
 		return NULL;
 	}
-
-
 }
 
 CEntity *CEntity::create(RoleType type){
@@ -171,7 +169,7 @@ void CEntity::update()
 				point = targetPoint;
 			}
 			worldPoint = point;
-			if(this == g_scenemain->m_maincha){				
+			if(this == g_scenemain->m_maincha){	
 				g_scenemain->m_map->setPositionX(g_scenemain->m_map->getPositionX()-delta_x);
 				g_scenemain->m_map->setPositionY(g_scenemain->m_map->getPositionY()-delta_y);
 			}else{

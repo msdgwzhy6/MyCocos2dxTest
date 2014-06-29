@@ -187,12 +187,12 @@ void SceneMain::ccTouchesBegan( cocos2d::CCSet *pTouche, cocos2d::CCEvent *pEven
 	CCPoint pos = CCDirector::sharedDirector()->convertToUI(touch->getLocationInView());
 	tiled* t = World2Tiled(Screen2World(pos));
 	if(!t) return;
-	DBWindowWrite(&g_console,TEXT("cur(%d,%d),tar(%d,%d)\n"),m_maincha->m_curtiled->c,m_maincha->m_curtiled->r,t->c,t->r);
-	m_maincha->m_path = FindPath(m_maincha->m_curtiled,t);
-	if(!m_maincha->m_path.empty()){
-		AStar::mapnode *t = m_maincha->m_path.back();
-		comm::move(t->x,t->y);
-	}
+	//DBWindowWrite(&g_console,TEXT("cur(%d,%d),tar(%d,%d)\n"),m_maincha->m_curtiled->c,m_maincha->m_curtiled->r,t->c,t->r);
+	//m_maincha->m_path = FindPath(m_maincha->m_curtiled,t);
+	//if(!m_maincha->m_path.empty()){
+		//AStar::mapnode *t = m_maincha->m_path.back();
+	comm::move(t->c,t->r);
+	//}
 
 }
 
@@ -241,13 +241,18 @@ void SceneMain::CMD_ENDSEE(comm::stLevSee *st){
 }
 
 void SceneMain::CMD_MOV(comm::stMov *st){
-	if(st->id != g_scenemain->m_maincha->identity){
-		CEntity *e = g_scenemain->GetOtherPly(st->id);
+	CEntity *e;
+	if(st->id == g_scenemain->m_maincha->identity)
+		e = g_scenemain->m_maincha;
+	else e = g_scenemain->GetOtherPly(st->id);
+
+	//if(st->id != g_scenemain->m_maincha->identity){
+	//	CEntity *e = g_scenemain->GetOtherPly(st->id);
 		if(e){
 			tiled *t = g_scenemain->m_pTiledGrid[st->y*g_scenemain->m_totalNumX+st->x];
 			e->m_path = g_scenemain->FindPath(e->m_curtiled,t);
 		}
-	}
+	//}
 }
 
 void SceneMain::CMD_BEGPLY(comm::stBegPly *st){
