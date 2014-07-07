@@ -63,6 +63,7 @@ bool SceneMain::init()
 	m_map = CCTMXTiledMap::create("level1.tmx");
 	CCTMXLayer *meta =  m_map->layerNamed("barrier");
 
+	FILE *f = fopen("map1.coli","w");
 	for (int y=0;y<nYnum;y++)
 	{
 		for (int x=0;x<nXnum;x++)
@@ -81,10 +82,12 @@ bool SceneMain::init()
 						if(prop->m_sString.compare("true") == 0){
 							values.insert(std::make_pair(std::make_pair(x,y),0xFFFFFFFF));
 							DBWindowWrite(&g_console,TEXT("cli:(%d,%d)\n"),x,y);
+							fprintf(f,"%u\n",0xFFFFFFFF);
 							break;
 						}
 					}
 				}
+				fprintf(f,"%u\n",0);
 				values.insert(std::make_pair(std::make_pair(x,y),0));
 			}
 			while(0);
@@ -94,6 +97,7 @@ bool SceneMain::init()
 		start_x -= tiled_half_width;
 
 	}
+	fclose(f);
 	m_astar.Init(nXnum,nYnum,values);
 	m_map->setPosition(ccp(-240,-80));
 	this->addChild(m_map);
