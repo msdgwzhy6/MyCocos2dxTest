@@ -83,7 +83,7 @@ void Run(unsigned int ms){
 	g_reactor->LoopOnce(ms);
 }
 
-void begply(){
+/*void begply(){
 	net::WPacket wpk;
 	wpk.WriteUint16(CMD_CS_BEGPLY);
 	g_connection->Send(wpk);
@@ -94,6 +94,35 @@ void move(unsigned long x,unsigned long y){
 	wpk.WriteUint16(CMD_CS_MOV);
 	wpk.WriteUint32(x);
 	wpk.WriteUint32(y);
+	g_connection->Send(wpk);
+}*/
+
+void LOGIN(const std::string &actname){
+	net::WPacket wpk;
+	wpk.WriteUint16(CMD_CA_LOGIN);
+	wpk.WriteUint8(2);
+	wpk.WriteString(actname.c_str());
+	g_connection->Send(wpk);
+}
+
+void CREATE(const std::string &nickname){
+	net::WPacket wpk;
+	wpk.WriteUint16(CMD_CG_CREATE);
+	wpk.WriteString(nickname.c_str());
+	g_connection->Send(wpk);
+}
+
+void ENTERMAP(){
+	net::WPacket wpk;
+	wpk.WriteUint16(CMD_CG_ENTERMAP);
+	g_connection->Send(wpk);
+}
+
+void MOV(int x,int y){
+	net::WPacket wpk;
+	wpk.WriteUint16(CMD_CS_MOV);
+	wpk.WriteUint16(x);
+	wpk.WriteUint16(y);
 	g_connection->Send(wpk);
 }
 

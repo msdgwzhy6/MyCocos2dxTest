@@ -43,7 +43,7 @@ public:
 	RoleType GetRoleType(){return m_rType;}
 	AniType GetAniType(){return m_Atype;}
 	
-	unsigned long long identity;
+	unsigned long identity;
 	cocos2d::CCPoint   targetPoint;
 	cocos2d::CCPoint   worldPoint;
 	std::list<AStar::mapnode*> m_path;

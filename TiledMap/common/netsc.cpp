@@ -32,44 +32,48 @@ void client_process_packet(net::Socket *s,net::RPacket &rpk)
 		delete _st;
 	}
 }
-static inline st* on_cmd_begply(net::RPacket &rpk){
+
+static inline st* ON_GC_CREATE(net::RPacket &rpk){
+	stCreate *st = new stCreate;
+	return st;
+}
+
+static inline st* ON_GC_BEGINPLY(net::RPacket &rpk){
 	stBegPly *st = new stBegPly;
-	st->id = rpk.ReadUint64();
 	return st;
 }
-REG_HANDLER(CMD_SC_BEGPLY,on_cmd_begply);
 
-static inline st* on_cmd_entersee(net::RPacket &rpk){
+static inline st* ON_SC_ENTERMAP(net::RPacket &rpk){
+	stEnterMap *st = new stEnterMap;
+	st->maptype = rpk.ReadUint16();
+	st->id = rpk.ReadUint32();
+	return st;
+}
+
+static inline st* ON_SC_ENTERSEE(net::RPacket &rpk){
 	stEnterSee *st = new stEnterSee;
-	st->id = rpk.ReadUint64();
+	st->id = rpk.ReadUint32();
+	st->avattype = rpk.ReadUint8();
+	st->avatid = rpk.ReadUint16();
+	st->x = rpk.ReadUint16();
+	st->y = rpk.ReadUint16();
 	st->dir = rpk.ReadUint8();
-	st->x = rpk.ReadUint32();
-	st->y = rpk.ReadUint32();
+	st->nickname = rpk.ReadString();
 	return st;
 }
-REG_HANDLER(CMD_SC_ENTERSEE,on_cmd_entersee);
 
-static inline st* on_cmd_levsee(net::RPacket &rpk){
+static inline st* ON_SC_LEVSEE(net::RPacket &rpk){
 	stLevSee *st = new stLevSee;
-	st->id = rpk.ReadUint64();
+	st->id = rpk.ReadUint32();
 	return st;
 }
-REG_HANDLER(CMD_SC_LEVSEE,on_cmd_levsee);
 
-static inline st* on_cmd_endply(net::RPacket &rpk){
-	stEndPly *st = new stEndPly;
-	return st;
-}
-REG_HANDLER(CMD_SC_ENDPLY,on_cmd_endply);
-
-static inline st* on_cmd_mov(net::RPacket &rpk){
+static inline st* ON_SC_MOV(net::RPacket &rpk){
 	stMov *st = new stMov;
-	st->id= rpk.ReadUint64();
-	st->x = rpk.ReadUint32();
-	st->y = rpk.ReadUint32();
+	st->id = rpk.ReadUint32();
+	st->x = rpk.ReadUint16();
+	st->y = rpk.ReadUint16();
 	return st;
 }
-REG_HANDLER(CMD_SC_MOV,on_cmd_mov);
-	
 
 }

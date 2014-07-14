@@ -18,9 +18,22 @@ void Close();
 
 void Run(unsigned int ms = 0);//运行主消息循环
 
-void begply();
 
-void move(unsigned long x,unsigned long y);
+//CMD_CA_LOGIN
+
+
+void LOGIN(const std::string &actname);
+
+void CREATE(const std::string &nickname);
+
+void ENTERMAP();
+
+void MOV(int x,int y);
+
+
+//void begply();
+
+//void move(unsigned long x,unsigned long y);
 
 /*
 void entermap(unsigned char mapid,const std::string &name,unsigned char avatid,double speed);

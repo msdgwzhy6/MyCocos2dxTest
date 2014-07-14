@@ -36,8 +36,13 @@ public:
 
 	static void CMD_BEGPLY(comm::stBegPly *st);
 
-	CEntity *GetOtherPly(unsigned long long id){
-		std::map<unsigned long long,CEntity*>::iterator it = m_otherply.find(id);
+	static void CMD_CREATE(comm::stCreate *st);
+
+	static void CMD_ENTERMAP(comm::stEnterMap *st);
+
+
+	CEntity *GetOtherPly(unsigned long id){
+		std::map<unsigned long,CEntity*>::iterator it = m_otherply.find(id);
 		if(it != m_otherply.end()) return it->second;
 		return NULL;
 	}
@@ -57,7 +62,7 @@ public:
 
 	CCTMXTiledMap*      m_map;
 	CEntity*            m_maincha;
-	std::map<unsigned long long,CEntity*> m_otherply;
+	std::map<unsigned long,CEntity*> m_otherply;
 	cocos2d::CCSprite  *m_tree;
 	AStar               m_astar;	
 	tiled**             m_pTiledGrid;    //斜45度tiled中心点在正向世界地图中的坐标	

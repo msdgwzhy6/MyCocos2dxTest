@@ -10,6 +10,10 @@ static const int tiled_half_width = tiled_width/2;
 static const int tiled_hight = 16;
 static const int tiled_half_hight = tiled_hight/2;
 
+
+std::string actname;
+std::string nickname;
+
 void SceneMain::Addworld2tiled(tiled *t){
 	//жа
 	int r = ((t->point).y)/tiled_hight;
@@ -107,7 +111,7 @@ bool SceneMain::init()
 }
 
 void on_client_connect(){
-	comm::begply();
+	comm::LOGIN(actname);
 }
 
 void on_disconnected(){
@@ -122,7 +126,7 @@ void on_client_connect_fail(){
 
 
 void  SceneMain::onAsynLoadFinish(){
-	if(!comm::Connect("127.0.0.1",8010,on_client_connect,on_client_connect_fail,on_disconnected)){
+	if(!comm::Connect("192.168.220.168",8010,on_client_connect,on_client_connect_fail,on_disconnected)){
 	}
 }
 
@@ -134,7 +138,7 @@ void SceneMain::update(float tick){
 	comm::Run();
 	if(!m_maincha) return;
 	m_maincha->update();
-	for(std::map<unsigned long long,CEntity*>::iterator it = m_otherply.begin();
+	for(std::map<unsigned long,CEntity*>::iterator it = m_otherply.begin();
 		it != m_otherply.end(); ++it)
 		it->second->update();
 }
@@ -191,11 +195,15 @@ void SceneMain::ccTouchesBegan( cocos2d::CCSet *pTouche, cocos2d::CCEvent *pEven
 	CCPoint pos = CCDirector::sharedDirector()->convertToUI(touch->getLocationInView());
 	tiled* t = World2Tiled(Screen2World(pos));
 	if(!t) return;
+
+	comm::MOV(t->c,t->r);
+
 	//DBWindowWrite(&g_console,TEXT("cur(%d,%d),tar(%d,%d)\n"),m_maincha->m_curtiled->c,m_maincha->m_curtiled->r,t->c,t->r);
 	//m_maincha->m_path = FindPath(m_maincha->m_curtiled,t);
 	//if(!m_maincha->m_path.empty()){
 		//AStar::mapnode *t = m_maincha->m_path.back();
-	comm::move(t->c,t->r);
+	
+	//comm::move(t->c,t->r);
 	//}
 
 }
@@ -260,10 +268,18 @@ void SceneMain::CMD_MOV(comm::stMov *st){
 }
 
 void SceneMain::CMD_BEGPLY(comm::stBegPly *st){
+	comm::ENTERMAP();
+}
+
+void SceneMain::CMD_CREATE(comm::stCreate *st){
+	comm::CREATE(nickname);	
+}
+
+void SceneMain::CMD_ENTERMAP(comm::stEnterMap *st){
 	CEntity *e = CEntity::create(RT_CAT);
 	e->setScale(0.7f);
 	e->identity = st->id;
-	g_scenemain->m_maincha = e;	
+	g_scenemain->m_maincha = e;		
 }
 
 cocos2d::CCPoint SceneMain::World2Screen(const cocos2d::CCPoint &pos) const{
