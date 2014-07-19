@@ -126,7 +126,7 @@ void on_client_connect_fail(){
 
 
 void  SceneMain::onAsynLoadFinish(){
-	if(!comm::Connect("192.168.220.168",8010,on_client_connect,on_client_connect_fail,on_disconnected)){
+	if(!comm::Connect("192.168.220.128",8010,on_client_connect,on_client_connect_fail,on_disconnected)){
 	}
 }
 
@@ -197,7 +197,7 @@ void SceneMain::ccTouchesBegan( cocos2d::CCSet *pTouche, cocos2d::CCEvent *pEven
 	if(!t) return;
 
 	comm::MOV(t->c,t->r);
-
+	DBWindowWrite(&g_console,TEXT("cur(%d,%d),tar(%d,%d)\n"),m_maincha->m_curtiled->c,m_maincha->m_curtiled->r,t->c,t->r);
 	//DBWindowWrite(&g_console,TEXT("cur(%d,%d),tar(%d,%d)\n"),m_maincha->m_curtiled->c,m_maincha->m_curtiled->r,t->c,t->r);
 	//m_maincha->m_path = FindPath(m_maincha->m_curtiled,t);
 	//if(!m_maincha->m_path.empty()){

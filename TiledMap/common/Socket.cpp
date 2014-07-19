@@ -101,11 +101,12 @@ void Socket::unpack(){
 	int pos = 0;
 	while(state == establish && pos < upos && upos-pos >= 4){
 		int len = *(int*)&unpackbuf[pos];
-		if(len <= 0 || len > maxpacket_size)
+		if(len <= 0 || len + sizeof(int) > maxpacket_size)
 		{
 			Close();
 			return;
 		}
+		len += sizeof(int);
 		if(upos-pos >= len){
 			ByteBuffer *b = new ByteBuffer(len);
 			b->WriteBin(0,(void*)&unpackbuf[pos],len);
@@ -178,7 +179,7 @@ int  Socket::rawSend(){
 		char *buf = (char *)wpk.Buffer()->ReadBin(wpos);
 		//for test
 		//int len = wpk.Buffer()->Cap()-wpos;
-		int len = wpk.Size()-wpos;
+		int len = wpk.Size()-wpos+sizeof(int);//+³¤¶È×Ö¶Î
 		int n = TEMP_FAILURE_RETRY(::send(fd,&buf[wpos],len,0));
 		if(n == 0){
 			//Close();

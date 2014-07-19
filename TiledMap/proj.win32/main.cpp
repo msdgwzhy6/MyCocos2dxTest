@@ -55,8 +55,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	std::vector<std::string> args = SplitCmd(toNarrowString(CP_ACP,lpCmdLine));
 	if(args.size() != 2) return 0;
 
-	actname = args[1];
-	nickname = args[2];
+	actname = args[0];
+	nickname = args[1];
 
 
     // create the application instance

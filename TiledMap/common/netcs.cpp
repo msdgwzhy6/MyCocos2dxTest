@@ -102,6 +102,7 @@ void LOGIN(const std::string &actname){
 	wpk.WriteUint16(CMD_CA_LOGIN);
 	wpk.WriteUint8(2);
 	wpk.WriteString(actname.c_str());
+	int s = wpk.Size();
 	g_connection->Send(wpk);
 }
 

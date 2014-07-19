@@ -37,11 +37,13 @@ static inline st* ON_GC_CREATE(net::RPacket &rpk){
 	stCreate *st = new stCreate;
 	return st;
 }
+REG_HANDLER(CMD_GC_CREATE,ON_GC_CREATE);
 
 static inline st* ON_GC_BEGINPLY(net::RPacket &rpk){
 	stBegPly *st = new stBegPly;
 	return st;
 }
+REG_HANDLER(CMD_GC_BEGINPLY,ON_GC_BEGINPLY);
 
 static inline st* ON_SC_ENTERMAP(net::RPacket &rpk){
 	stEnterMap *st = new stEnterMap;
@@ -49,24 +51,27 @@ static inline st* ON_SC_ENTERMAP(net::RPacket &rpk){
 	st->id = rpk.ReadUint32();
 	return st;
 }
+REG_HANDLER(CMD_SC_ENTERMAP,ON_SC_ENTERMAP);
 
 static inline st* ON_SC_ENTERSEE(net::RPacket &rpk){
 	stEnterSee *st = new stEnterSee;
 	st->id = rpk.ReadUint32();
 	st->avattype = rpk.ReadUint8();
 	st->avatid = rpk.ReadUint16();
+	st->nickname = rpk.ReadString();
 	st->x = rpk.ReadUint16();
 	st->y = rpk.ReadUint16();
 	st->dir = rpk.ReadUint8();
-	st->nickname = rpk.ReadString();
 	return st;
 }
+REG_HANDLER(CMD_SC_ENTERSEE,ON_SC_ENTERSEE);
 
 static inline st* ON_SC_LEVSEE(net::RPacket &rpk){
 	stLevSee *st = new stLevSee;
 	st->id = rpk.ReadUint32();
 	return st;
 }
+REG_HANDLER(CMD_SC_LEAVESEE,ON_SC_LEVSEE);
 
 static inline st* ON_SC_MOV(net::RPacket &rpk){
 	stMov *st = new stMov;
@@ -75,5 +80,6 @@ static inline st* ON_SC_MOV(net::RPacket &rpk){
 	st->y = rpk.ReadUint16();
 	return st;
 }
+REG_HANDLER(CMD_SC_MOV,ON_SC_MOV);
 
 }
