@@ -21,6 +21,8 @@ enum{
 	CMD_SC_ENTERSEE,
 	CMD_SC_LEAVESEE,
 	CMD_SC_MOV,
+	CMD_SC_MOV_ARRI,
+	CMD_SC_MOV_FAILED,
 	CMD_SC_END,
 
 	//client <-> group
@@ -52,7 +54,7 @@ enum{
 	//game <-> group
 
 	CMD_GAMEG_BEGIN = 800,
-	CMD_GAMEG_LOGIN,     //gameserver进程登陆到group 
+	CMD_GAMEG_LOGIN,                  //gameserver进程登陆到group 
 	CMD_GAMEG_END,
 
 	CMD_GGAME_BEGIN = 900,

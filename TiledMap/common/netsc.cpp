@@ -25,7 +25,7 @@ void SetHandleFunc(unsigned short cmd,void  (*handle_func)(st*)){
 void client_process_packet(net::Socket *s,net::RPacket &rpk)
 {
 	unsigned short cmd = rpk.ReadUint16();
-	if(g_handler[cmd]->handle_func)
+	if(g_handler[cmd] && g_handler[cmd]->handle_func)
 	{
 		st *_st = g_handler[cmd]->parse_func(rpk);
 		g_handler[cmd]->handle_func(_st);
